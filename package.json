@@ -1,0 +1,19 @@
+{
+  "name": "fluent-cursor",
+  "version": "0.1.0",
+  "description": "Fluent cursor implementation using Object.defineProperty",
+  "main": "fluent-cursor.js",
+  "scripts": {
+    "test": "karma run"
+  },
+  "author": "Reid Lynch",
+  "license": "MIT",
+  "repository": "",
+  "readme": "README.md",
+  "dependencies": {
+    "immutable": "^3.6.2"
+  },
+  "devDependencies": {
+    "jasmine": "^2.1.1"
+  }
+}
