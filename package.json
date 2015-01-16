@@ -4,12 +4,14 @@
   "description": "Fluent cursor implementation using Object.defineProperty",
   "main": "fluent-cursor.js",
   "scripts": {
-    "test": "karma run"
+    "test": "jasmine"
   },
   "author": "Reid Lynch",
   "license": "MIT",
-  "repository": "",
-  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rigoleto/fluent-cursor"
+  },
   "dependencies": {
     "immutable": "^3.6.2"
   },

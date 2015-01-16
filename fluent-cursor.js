@@ -1,10 +1,51 @@
+/* @flow */
+
 var Immutable = require('immutable');
 
+function FluentArrayCursor(array: Array<any>) {
+  this.immutable = Immutable.fromJS(array);
+}
+FluentArrayCursor.prototype = {
+  concat: function (otherArray: Array<any>) {
 
-function FluentCursor(structure) {
+  },
+
+  pop: function () {
+
+  },
+
+  push: function (item) {
+
+  },
+
+  shift: function (item) {
+
+  },
+
+  unshift: function () {
+
+  },
+
+  reverse: function () {
+
+  },
+
+  sort: function () {
+
+  },
+
+  splice: function () {
+
+  }
+};
+
+function FluentObjectCursor(object: Object) {
   var self = this;
-  var immutable = Immutable.fromJS(structure);
   var identityMap = {};
+  var immutable = Immutable.fromJS(object);
+  Object.defineProperty(this, 'immutable', {
+    value: immutable
+  });
 
   immutable.forEach(function (v,k) {
 
@@ -13,7 +54,7 @@ function FluentCursor(structure) {
         var v = immutable.get(k);
         if (Immutable.Map.isMap(v)) {
           if (!identityMap[k]) {
-            identityMap[k] = new FluentCursor(v)
+            identityMap[k] = new FluentCursor(v);
           }
           return identityMap[k];
         } else {
@@ -28,7 +69,14 @@ function FluentCursor(structure) {
     });
 
   });
+}
 
+function FluentCursor(structure: Object | Array<any>) {
+  if (Array.isArray(structure)) {
+    FluentArrayCursor.call(this, structure);
+  } else {
+    FluentObjectCursor.call(this, structure);
+  }
 }
 
 

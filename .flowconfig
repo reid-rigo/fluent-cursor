@@ -1,0 +1,9 @@
+[ignore]
+
+[include]
+fluent-cursor.js
+spec/*.js
+
+[libs]
+
+[options]
