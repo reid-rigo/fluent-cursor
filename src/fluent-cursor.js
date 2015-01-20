@@ -1,35 +1,49 @@
-"use strict";
-
 /* @flow */
 
-var Immutable = require("immutable");
+var Immutable = require('immutable');
 
-function FluentArrayCursor(array) {
+function FluentArrayCursor(array: Array<any>) {
   this.immutable = Immutable.fromJS(array);
 }
 FluentArrayCursor.prototype = {
-  concat: function (otherArray) {},
+  concat: function (otherArray: Array<any>) {
 
-  pop: function () {},
+  },
 
-  push: function (item) {},
+  pop: function () {
 
-  shift: function (item) {},
+  },
 
-  unshift: function () {},
+  push: function (item) {
 
-  reverse: function () {},
+  },
 
-  sort: function () {},
+  shift: function (item) {
 
-  splice: function () {}
+  },
+
+  unshift: function () {
+
+  },
+
+  reverse: function () {
+
+  },
+
+  sort: function () {
+
+  },
+
+  splice: function () {
+
+  }
 };
 
-function FluentObjectCursor(object) {
+function FluentObjectCursor(object: Object) {
   var self = this;
   var identityMap = {};
   var immutable = Immutable.fromJS(object);
-  Object.defineProperty(this, "immutable", {
+  Object.defineProperty(this, 'immutable', {
     value: immutable
   });
 
@@ -59,7 +73,7 @@ function FluentObjectCursor(object) {
   Object.defineProperties(this, properties);
 }
 
-function FluentCursor(structure) {
+function FluentCursor(structure: Object | Array<any>) {
   if (Array.isArray(structure)) {
     FluentArrayCursor.call(this, structure);
   } else {
