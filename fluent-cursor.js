@@ -4,10 +4,8 @@
 
 var Immutable = require("immutable");
 
-function FluentArrayCursor(array) {
-  this.immutable = Immutable.fromJS(array);
-}
-FluentArrayCursor.prototype = {
+function ArrayCursor(immutable, path) {}
+ArrayCursor.prototype = {
   concat: function (otherArray) {},
 
   pop: function () {},
@@ -25,34 +23,22 @@ FluentArrayCursor.prototype = {
   splice: function () {}
 };
 
-function FluentObjectCursor(object) {
-  var self = this;
-  var identityMap = {};
-  var immutable = Immutable.fromJS(object);
-  Object.defineProperty(this, "immutable", {
-    value: immutable
-  });
-
-  var properties = immutable.keys().map(function (k) {
-    return {
-      k: {
-        get: function () {
-          var v = immutable.get(k);
-          if (Immutable.Map.isMap(v)) {
-            if (!identityMap[k]) {
-              identityMap[k] = new FluentCursor(v);
-            }
-            return identityMap[k];
-          } else {
-            return v;
-          }
-        },
-        set: function (v) {
-          delete identityMap[k];
-          immutable = immutable.set(k, v);
-        },
-        enumerable: true
-      }
+function SubCursor(immutable, path) {
+  var properties = {};
+  immutable.forEach(function (v, k) {
+    properties[k] = {
+      get: function () {
+        var v = immutable.getIn(path, k);
+        if (Immutable.Map.isMap(v)) {
+          return new FluentCursor(v);
+        } else {
+          return v;
+        }
+      },
+      set: function (v) {
+        immutable = immutable.setIn(path, k, v);
+      },
+      enumerable: true
     };
   });
 
@@ -60,12 +46,18 @@ function FluentObjectCursor(object) {
 }
 
 function FluentCursor(structure) {
+  var immutable = Immutable.fromJS(structure);
+  Object.defineProperty(this, "immutable", {
+    value: immutable
+  });
+
   if (Array.isArray(structure)) {
-    FluentArrayCursor.call(this, structure);
+    ArrayCursor.call(this, immutable, []);
   } else {
-    FluentObjectCursor.call(this, structure);
+    SubCursor.call(this, immutable, []);
   }
 }
 
 
 module.exports = FluentCursor;
+// this.immutable = Immutable.fromJS(array);

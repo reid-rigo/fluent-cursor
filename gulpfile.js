@@ -20,7 +20,7 @@ gulp.task('flow', function() {
 });
 
 gulp.task('spec', function () {
-  return gulp.src('spec/test.js')
+  return gulp.src(specSrc)
   .pipe(jasmine());
 });
 

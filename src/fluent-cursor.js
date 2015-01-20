@@ -2,10 +2,10 @@
 
 var Immutable = require('immutable');
 
-function FluentArrayCursor(array: Array<any>) {
-  this.immutable = Immutable.fromJS(array);
+function ArrayCursor(immutable: Object, path: Array<string>) {
+  // this.immutable = Immutable.fromJS(array);
 }
-FluentArrayCursor.prototype = {
+ArrayCursor.prototype = {
   concat: function (otherArray: Array<any>) {
 
   },
@@ -39,45 +39,40 @@ FluentArrayCursor.prototype = {
   }
 };
 
-function FluentObjectCursor(object: Object) {
-  var self = this;
-  var identityMap = {};
-  var immutable = Immutable.fromJS(object);
-  Object.defineProperty(this, 'immutable', {
-    value: immutable
-  });
+function SubCursor(immutable: Object, path: Array<string>) {
 
-  var properties = immutable.keys().map(function (k) {
-    return {
-      k: {
-        get: function () {
-          var v = immutable.get(k);
-          if (Immutable.Map.isMap(v)) {
-            if (!identityMap[k]) {
-              identityMap[k] = new FluentCursor(v);
-            }
-            return identityMap[k];
-          } else {
-            return v;
-          }
-        },
-        set: function (v) {
-          delete identityMap[k];
-          immutable = immutable.set(k, v);
-        },
-        enumerable: true
-      }
-    };
+  var properties = {};
+  immutable.forEach(function (v, k) {
+    properties[k] = {
+      get: function () {
+        var v = immutable.getIn(path, k);
+        if (Immutable.Map.isMap(v)) {
+          return new FluentCursor(v);
+        } else {
+          return v;
+        }
+      },
+      set: function (v) {
+        immutable = immutable.setIn(path, k, v);
+      },
+      enumerable: true
+    }
   });
 
   Object.defineProperties(this, properties);
 }
 
 function FluentCursor(structure: Object | Array<any>) {
+
+  var immutable = Immutable.fromJS(structure);
+  Object.defineProperty(this, 'immutable', {
+    value: immutable
+  });
+
   if (Array.isArray(structure)) {
-    FluentArrayCursor.call(this, structure);
+    ArrayCursor.call(this, immutable, []);
   } else {
-    FluentObjectCursor.call(this, structure);
+    SubCursor.call(this, immutable, []);
   }
 }
 
