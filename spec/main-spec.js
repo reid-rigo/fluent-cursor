@@ -13,12 +13,6 @@ describe('A cursor from a basic object', function () {
     expect(fc.a).toEqual(3);
 
   });
-
-  it('should have underlying immutable available', function () {
-    var fc = new FluentCursor({a: 'b'});
-    expect(fc.immutable).toBeDefined();
-    expect(fc.immutable.toJS()).toEqual({a: 'b'});
-  });
 });
 
 describe('A cursor from a deep object', function () {
@@ -39,7 +33,7 @@ describe('A cursor from a deep object', function () {
 
 describe('A cursor containing an array', function () {
 
-  it('should have underlying immutable available', function () {
+  xit('should have underlying immutable available', function () {
     var fc = new FluentCursor([1, 2, 3]);
     expect(fc.immutable).toBeDefined();
     expect(fc.immutable.toJS()).toEqual([1, 2, 3]);

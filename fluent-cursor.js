@@ -23,20 +23,25 @@ ArrayCursor.prototype = {
   splice: function () {}
 };
 
-function SubCursor(immutable, path) {
+function ObjectCursor(immutable, path) {
   var properties = {};
   immutable.forEach(function (v, k) {
+    var p = path.slice(0);
+    p.push(k);
+    console.log(p);
     properties[k] = {
       get: function () {
-        var v = immutable.getIn(path, k);
+        var v = immutable.getIn(p, k);
         if (Immutable.Map.isMap(v)) {
-          return new FluentCursor(v);
+          return new ObjectCursor(immutable, p);
+        } else if (Immutable.List.isList(v)) {
+          return new ArrayCursor(immutable, p);
         } else {
           return v;
         }
       },
       set: function (v) {
-        immutable = immutable.setIn(path, k, v);
+        immutable = immutable.setIn(k, v, p);
       },
       enumerable: true
     };
@@ -47,17 +52,13 @@ function SubCursor(immutable, path) {
 
 function FluentCursor(structure) {
   var immutable = Immutable.fromJS(structure);
-  Object.defineProperty(this, "immutable", {
-    value: immutable
-  });
 
   if (Array.isArray(structure)) {
     ArrayCursor.call(this, immutable, []);
   } else {
-    SubCursor.call(this, immutable, []);
+    ObjectCursor.call(this, immutable, []);
   }
 }
-
 
 module.exports = FluentCursor;
 // this.immutable = Immutable.fromJS(array);
