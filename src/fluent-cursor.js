@@ -2,79 +2,69 @@
 
 var Immutable = require('immutable');
 
-function ArrayCursor(immutable: Object, path: Array<string>) {
-  // this.immutable = Immutable.fromJS(array);
+function MutableList(immutable, path) {
+  this._immutable = immutable;
+  this._path = new Immutable.List(path);
+  console.log(path);
 }
-ArrayCursor.prototype = {
-  concat: function (otherArray: Array<any>) {
+var listAccessors = [];
+var listMutators = [];
 
-  },
-
-  pop: function () {
-
-  },
-
-  push: function (item) {
-
-  },
-
-  shift: function (item) {
-
-  },
-
-  unshift: function () {
-
-  },
-
-  reverse: function () {
-
-  },
-
-  sort: function () {
-
-  },
-
-  splice: function () {
-
+function MutableMap(immutable: Object, path) {
+  this._immutable = immutable;
+  this._path = new Immutable.List(path);
+  // Object.defineProperties();
+}
+MutableMap.prototype.get = function get(key) {
+  var p = this._path.push(key);
+  console.log(this._immutable, p);
+  var ret = this._immutable.getIn(p);
+  console.log(ret);
+  if (isImmutable(ret)) {
+    return sub(this._immutable, p);
+  } else {
+    return ret;
   }
 };
+// var mapAccessors = ['get', 'getIn'];
+// mapAccessors.forEach(function(method) {
+//   MutableMap.prototype[method] = function() {
+//     var node = this._immutable.getIn(this._path);
+//     var ret = node[method].apply(node, arguments);
+//     return fromJS(ret);
+//   };
+// });
+var mapMutators = ['set', 'setIn'];
+mapMutators.forEach(function(method) {
+  MutableMap.prototype[method] = function() {
+    var node = this._immutable.getIn(this._path);
+    var newNode = node[method].apply(node, arguments);
+    this._immutable = this._immutable.setIn(this._path, newNode);
+  };
+});
 
-function ObjectCursor(immutable: Object, path: Array<string>) {
-  var properties = {};
-  immutable.forEach(function (v, k) {
-    var p = path.slice(0);
-    p.push(k);
-    console.log(p);
-    properties[k] = {
-      get: function() {
-        var v = immutable.getIn(p, k);
-        if (Immutable.Map.isMap(v)) {
-          return new ObjectCursor(immutable, p);
-        } else if (Immutable.List.isList(v)) {
-          return new ArrayCursor(immutable, p);
-        } else {
-          return v;
-        }
-      },
-      set: function(v) {
-        immutable = immutable.setIn(k, v, p);
-      },
-      enumerable: true
-    }
-  });
-
-  Object.defineProperties(this, properties);
-}
-
-function FluentCursor(structure: Object | Array<any>) {
-
-  var immutable = Immutable.fromJS(structure);
-
-  if (Array.isArray(structure)) {
-    ArrayCursor.call(this, immutable, []);
-  } else {
-    ObjectCursor.call(this, immutable, []);
+function sub(immutable, path) {
+  if (Immutable.Map.isMap(immutable)) {
+    return new MutableMap(immutable, path);
+  } else if (Immutable.List.isList(immutable)) {
+    return new MutableList(immutable, path);
   }
 }
+
+function isImmutable(thing) {
+  return Immutable.Map.isMap(thing) || Immutable.List.isList(thing);
+}
+
+function fromJS(thing) {
+  var immutable = Immutable.fromJS(thing);
+  if (isImmutable(immutable)) {
+    return sub(immutable, []);
+  } else {
+    return thing;
+  }
+}
+
+var FluentCursor = {};
+FluentCursor.fromJS = fromJS;
 
 module.exports = FluentCursor;
